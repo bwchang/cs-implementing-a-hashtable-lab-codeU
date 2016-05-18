@@ -23,6 +23,7 @@ public class MyBetterMap<K, V> implements Map<K, V> {
 	
 	// MyBetterMap uses a collection of MyLinearMap
 	protected List<MyLinearMap<K, V>> maps;
+	protected int size;
 	
 	/**
 	 * Initialize the map with 2 sub-maps.
@@ -30,6 +31,7 @@ public class MyBetterMap<K, V> implements Map<K, V> {
 	 */
 	public MyBetterMap() {
 		makeMaps(2);
+		this.size = 0;
 	}
 
 	/**
@@ -50,6 +52,7 @@ public class MyBetterMap<K, V> implements Map<K, V> {
 		for (int i=0; i<maps.size(); i++) {
 			maps.get(i).clear();
 		}
+		size = 0;
 	}
 
 	/**
@@ -65,15 +68,17 @@ public class MyBetterMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsKey(Object target) {
-		// to find a key, we only have to search one map
-        // TODO: fill this in.
-		return false;
+		MyLinearMap<K, V> map = chooseMap(target);
+		return map.containsKey(target);
 	}
 
 	@Override
 	public boolean containsValue(Object target) {
-		// to find a value, we have to search all maps
-        // TODO: fill this in.
+		for (MyLinearMap<K, V> map : maps) {
+			if (map.containsValue(target)) {
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -106,7 +111,11 @@ public class MyBetterMap<K, V> implements Map<K, V> {
 	@Override
 	public V put(K key, V value) {
 		MyLinearMap<K, V> map = chooseMap(key);
-		return map.put(key, value);
+		V prev = map.put(key, value);
+		if (prev == null) {
+			size++;
+		}
+		return prev;
 	}
 
 	@Override
@@ -119,17 +128,22 @@ public class MyBetterMap<K, V> implements Map<K, V> {
 	@Override
 	public V remove(Object key) {
 		MyLinearMap<K, V> map = chooseMap(key);
-		return map.remove(key);
+		V prev = map.remove(key);
+		if (prev != null) {
+			size--;
+		}
+		return prev;
 	}
 
 	@Override
 	public int size() {
 		// add up the sizes of the sub-maps
-		int total = 0;
+		/*int total = 0;
 		for (MyLinearMap<K, V> map: maps) {
 			total += map.size();
 		}
-		return total;
+		return total;*/
+		return size;
 	}
 
 	@Override
